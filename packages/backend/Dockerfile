@@ -45,12 +45,16 @@ COPY --from=builder --chown=shieldly:nodejs /app/src ./src
 COPY --from=builder --chown=shieldly:nodejs /app/drizzle ./drizzle
 COPY --from=builder --chown=shieldly:nodejs /app/tsconfig.json ./
 COPY --from=builder --chown=shieldly:nodejs /app/drizzle.config.ts ./
+COPY --from=builder --chown=shieldly:nodejs /app/migrate.sh ./migrate.sh
 
 # Install tsx for running TypeScript directly (since no build script exists)
 RUN pnpm add tsx
 
-# Install drizzle-kit for migrations
-RUN pnpm add drizzle-kit
+# Install drizzle-kit for migrations and pg for connection testing
+RUN pnpm add drizzle-kit pg
+
+# Make migration script executable
+RUN chmod +x ./migrate.sh
 
 # Switch to non-root user
 USER shieldly

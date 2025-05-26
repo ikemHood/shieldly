@@ -1,0 +1,27 @@
+# Migration-specific Dockerfile
+FROM node:20-alpine
+
+# Install necessary packages
+RUN apk add --no-cache postgresql-client
+
+# Set working directory
+WORKDIR /app
+
+# Install pnpm globally
+RUN npm install -g pnpm
+
+# Copy package files
+COPY package.json pnpm-lock.yaml* ./
+
+# Install all dependencies (including dev dependencies for drizzle-kit)
+RUN if [ -f pnpm-lock.yaml ]; then pnpm install --frozen-lockfile; else pnpm install; fi
+
+# Copy source code and migration files
+COPY . .
+
+# Copy and make migration script executable
+COPY migrate-entrypoint.sh ./migrate.sh
+RUN chmod +x migrate.sh
+
+# Run as root for database operations
+CMD ["./migrate.sh"] 
