@@ -111,17 +111,16 @@ services:
   migrate:
     build:
       context: ./packages/backend
-      dockerfile: Dockerfile
-      target: production
+      dockerfile: Dockerfile.migrate
     container_name: shieldly-migrate
     environment:
       DB_URL: postgresql://postgres:postgres@postgres:5432/shieldly
+      NODE_ENV: production
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - shieldly-network
-    command: ["pnpm", "exec", "drizzle-kit", "migrate"]
     restart: "no"
 
 volumes:
