@@ -1,21 +1,8 @@
-import { Platform } from 'react-native';
 import { showToast } from '../utils/toast';
 
 // API Configuration
-// For Android emulator, use 10.0.2.2 instead of localhost
-// For iOS simulator, localhost works fine
-// For physical devices, use your computer's IP address
 const getApiBaseUrl = () => {
-    if (__DEV__) {
-        const HOST_IP = '192.168.1.46'//'192.168.0.108';
-
-        if (Platform.OS === 'android' || Platform.OS === 'ios') {
-            return `http://${HOST_IP}:9000`;
-        }
-
-        return 'http://localhost:3000';
-    }
-    return 'https://api.shieldly.xyz';
+    return 'https://shieldly-api.apps.ikem.dev';
 };
 
 const API_BASE_URL = getApiBaseUrl();

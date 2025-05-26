@@ -63,6 +63,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     networks:
       - shieldly-network
     volumes:
@@ -119,7 +121,7 @@ services:
         condition: service_healthy
     networks:
       - shieldly-network
-    command: ["pnpm", "migrate"]
+    command: ["pnpm", "exec", "drizzle-kit", "migrate"]
     restart: "no"
 
 volumes:

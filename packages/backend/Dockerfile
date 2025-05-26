@@ -49,6 +49,9 @@ COPY --from=builder --chown=shieldly:nodejs /app/drizzle.config.ts ./
 # Install tsx for running TypeScript directly (since no build script exists)
 RUN pnpm add tsx
 
+# Install drizzle-kit for migrations
+RUN pnpm add drizzle-kit
+
 # Switch to non-root user
 USER shieldly
 
