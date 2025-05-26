@@ -1,0 +1,131 @@
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: shieldly-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: shieldly
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./packages/backend/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    ports:
+      - "31110:5432"
+    networks:
+      - shieldly-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d shieldly"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Shieldly Backend Application
+  backend:
+    build:
+      context: ./packages/backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: shieldly-backend
+    restart: unless-stopped
+    environment:
+      # Database
+      DB_URL: postgresql://postgres:postgres@postgres:5432/shieldly
+      
+      # Server
+      PORT: 3001
+      NODE_ENV: production
+      LOG_LEVEL: INFO
+      
+      # API Keys (set these in .env file)
+      API_KEY: ${API_KEY:-your-api-key}
+      SECRET_KEY: ${SECRET_KEY:-your-secret-key}
+      APP_ID: ${APP_ID:-your-app-id}
+      JWT_SECRET: ${JWT_SECRET:-your-jwt-secret}
+      
+      # External Services
+      NODE_URL: ${NODE_URL:-https://devnet.chipi.io}
+      KYC_PROVIDER_URL: ${KYC_PROVIDER_URL:-https://kyc-provider.example.com}
+      KYC_API_KEY: ${KYC_API_KEY:-your-kyc-api-key}
+      
+      # Google OAuth
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL:-http://localhost:31111/auth/google/callback}
+      
+      # Email
+      RESEND_API_KEY: ${RESEND_API_KEY:-your-resend-api-key}
+      EMAIL_FROM: ${EMAIL_FROM:-noreply@shieldly.xyz}
+    ports:
+      - "31111:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - shieldly-network
+    volumes:
+      # Mount logs directory for persistent logging
+      - ./packages/backend/logs:/app/logs
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3001/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Shieldly Web Frontend
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: shieldly-web
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      NEXT_TELEMETRY_DISABLED: 1
+      PORT: 3000
+      HOSTNAME: "0.0.0.0"
+      # Backend API URL - internal Docker network communication
+      NEXT_PUBLIC_API_URL: http://backend:3001
+      # Public API URL for client-side requests (adjust for your domain)
+      NEXT_PUBLIC_API_URL_EXTERNAL: ${NEXT_PUBLIC_API_URL_EXTERNAL:-http://localhost:31111}
+    ports:
+      - "31112:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - shieldly-network
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Database Migration Service (runs once)
+  migrate:
+    build:
+      context: ./packages/backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: shieldly-migrate
+    environment:
+      DB_URL: postgresql://postgres:postgres@postgres:5432/shieldly
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - shieldly-network
+    command: ["pnpm", "migrate"]
+    restart: "no"
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  shieldly-network:
+    driver: bridge 

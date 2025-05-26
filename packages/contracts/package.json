@@ -1,0 +1,43 @@
+{
+    "name": "@shieldly/contracts",
+    "version": "0.0.1",
+    "scripts": {
+        "chain": "starknet-devnet --seed 0 --account-class cairo1",
+        "compile": "scarb build",
+        "deploy": "ts-node scripts/deploy.ts",
+        "deploy:devnet": "pnpm run deploy --network devnet",
+        "deploy:sepolia": "pnpm run deploy --network sepolia",
+        "deploy:mainnet": "pnpm run deploy --network mainnet",
+        "deploy:clear": "cd deployments && rm -f *.json && cd .. && ts-node scripts/deploy.ts",
+        "deploy:no-reset": "ts-node scripts/deploy.ts --no-reset",
+        "format": "prettier --write 'scripts/**/*.{ts,tsx}' && scarb fmt",
+        "format:check": "prettier --check 'scripts/**/*.{ts,tsx}' && scarb fmt --check",
+        "test": "snforge test",
+        "test-eslint": "node eslint-contract-name/eslint-plugin-contract-names.test.js",
+        "verify": "ts-node scripts/verify-contracts.ts",
+        "verify:sepolia": "pnpm run verify --network sepolia",
+        "verify:mainnet": "pnpm run verify --network mainnet"
+    },
+    "dependencies": {
+        "dotenv": "^16.3.1",
+        "envfile": "^6.18.0",
+        "prettier": "^2.8.8",
+        "starknet": "^7.1.0",
+        "toml": "^3.0.0",
+        "tslib": "^2.6.2"
+    },
+    "devDependencies": {
+        "@types/node": "^20",
+        "@types/prettier": "^2",
+        "@types/yargs": "^17.0.32",
+        "globals": "^15.8.0",
+        "shx": "^0.4.0",
+        "ts-node": "^10.9.2",
+        "typescript": "^5",
+        "typescript-eslint": "^7.16.1",
+        "yargs": "^17.7.2"
+    },
+    "peerDependencies": {
+        "eslint": "^8.0.0"
+    }
+}

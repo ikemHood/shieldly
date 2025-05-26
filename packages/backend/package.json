@@ -1,0 +1,46 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "migrate": "bunx drizzle-kit migrate",
+    "generate": "bunx drizzle-kit generate"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.5.2",
+  "dependencies": {
+    "@chipi-pay/chipi-sdk": "^3.0.5",
+    "@hono/node-server": "^1.14.1",
+    "@hono/swagger-ui": "^0.5.1",
+    "@hono/zod-openapi": "^0.19.6",
+    "@hono/zod-validator": "^0.5.0",
+    "@types/crypto-js": "^4.2.2",
+    "bcryptjs": "^3.0.2",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^16.5.0",
+    "drizzle-orm": "^0.43.1",
+    "google-auth-library": "^9.15.1",
+    "hono": "^4.7.9",
+    "hono-openapi": "^0.4.8",
+    "jsonwebtoken": "^9.0.2",
+    "postgres": "^3.4.5",
+    "resend": "^4.5.1",
+    "starknet": "^6.24.1",
+    "stoker": "^1.4.2",
+    "zod": "^3.24.4",
+    "zod-to-json-schema": "^3.24.5"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^22.15.17",
+    "drizzle-kit": "^0.30.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}
